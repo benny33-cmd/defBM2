@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Laboratorio Stampante 3D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Laboratorio Stampante 3D</h1>
+    <p>Liceo - Archivio e Prenotazioni</p>
+</header>
+
+<!-- VIDEO -->
+<section class="video-section">
+    <h2>Guida all'utilizzo della Stampante 3D</h2>
+    <iframe src="https://www.youtube.com/embed/GbsUidEGIws" 
+            frameborder="0" allowfullscreen></iframe>
+</section>
+
+<!-- ARCHIVIO -->
+<section class="archivio">
+    <h2>Archivio Progetti</h2>
+    <div class="grid">
+
+        <div class="card">
+            <img src="img/terra.JPG">
+            <h3>Terra</h3>
+            <p>Modello della Terra stampato in 3D.</p>
+        </div>
+
+        <div class="card">
+            <img src="img/vulcano.JPG">
+            <h3>Vulcano</h3>
+            <p>Vulcano con simulazione eruzione.</p>
+        </div>
+
+        <div class="card">
+            <img src="img/sistema_limbico.jpg">
+            <h3>Sistema Limbico</h3>
+            <p>Modello anatomico del cervello.</p>
+        </div>
+
+        <div class="card">
+            <img src="img/funzioni.JPG">
+            <h3>Funzioni Matematiche</h3>
+            <p>Grafici 3D per non vedenti.</p>
+        </div>
+
+        <div class="card">
+            <img src="img/tempio.JPG">
+            <h3>Tempio Greco</h3>
+            <p>Ricostruzione architettonica.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- PRENOTAZIONE -->
+<section class="prenotazione">
+    <h2>Prenotazione Progetti</h2>
+
+    <input type="text" id="nome" placeholder="Nome">
+
+    <select id="progetto">
+        <option>Funzioni matematiche</option>
+        <option>Tempio greco</option>
+        <option>Sistema limbico</option>
+        <option>Terra</option>
+        <option>Vulcano acido</option>
+    </select>
+
+    <select id="orario">
+        <option>7:55-8:50</option>
+        <option>8:50-9:45</option>
+        <option>10:00-10:55</option>
+        <option>10:55-11:50</option>
+        <option>12:05-13:00</option>
+        <option>13:00-13:55</option>
+    </select>
+
+    <button onclick="prenota()">Prenota</button>
+
+    <h3>Prenotazioni</h3>
+    <ul id="lista"></ul>
+</section>
+
+<footer>
+    <p>© Laboratorio 3D - Scuola</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
