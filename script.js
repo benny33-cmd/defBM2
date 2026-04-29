@@ -30,3 +30,25 @@ function aggiornaLista() {
         lista.appendChild(li);
     }
 }
+
+/* SLIDER */
+function cambiaSlide(btn, direzione) {
+    let slider = btn.parentElement;
+    let slides = slider.querySelectorAll(".slide");
+
+    let index = 0;
+
+    slides.forEach((slide, i) => {
+        if (slide.classList.contains("active")) {
+            index = i;
+        }
+        slide.classList.remove("active");
+    });
+
+    index += direzione;
+
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+
+    slides[index].classList.add("active");
+}
