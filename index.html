@@ -20,6 +20,7 @@
 
     </div>
 </header>
+
 <!-- VIDEO -->
 <section class="video-section">
     <h2>Guida all'utilizzo della Stampante 3D</h2>
@@ -32,34 +33,80 @@
     <h2>Archivio Progetti</h2>
     <div class="grid">
 
+        <!-- TERRA -->
         <div class="card">
-            <img src="./img/terra.JPG">
+            <div class="slider">
+                <button class="prev" onclick="cambiaSlide(this, -1)">❮</button>
+
+                <img src="./img/terra1.JPG" class="slide active">
+                <img src="./img/terra2.JPG" class="slide">
+                <img src="./img/terra3.JPG" class="slide">
+
+                <button class="next" onclick="cambiaSlide(this, 1)">❯</button>
+            </div>
+
             <h3>Terra</h3>
-            <p>Il modello sferico rappresenta la Terra e la divisione della sua superficie in grandi frammenti rigidi chiamati placche tettoniche. Queste placche "galleggiano" sul mantello sottostante e sono in costante movimento.</p>
+            <p>Il modello sferico rappresenta la Terra e la divisione della sua superficie in grandi frammenti rigidi chiamati placche tettoniche.</p>
         </div>
 
+        <!-- VULCANO -->
         <div class="card">
-            <img src="./img/vulcano.JPG">
+            <div class="slider">
+                <button class="prev" onclick="cambiaSlide(this, -1)">❮</button>
+
+                <img src="./img/vulcano1.JPG" class="slide active">
+                <img src="./img/vulcano2.JPG" class="slide">
+
+                <button class="next" onclick="cambiaSlide(this, 1)">❯</button>
+            </div>
+
             <h3>Vulcano acido</h3>
-            <p>Questo modello rappresenta un vulcano caratterizzato da magma acido, ovvero ricco di silice. A differenza dei vulcani basaltici, qui il magma è molto viscoso e scorre con difficoltà, intrappolando i gas e causando eruzioni di estrema violenza.</p>
+            <p>Questo modello rappresenta un vulcano con magma ricco di silice, molto viscoso e con eruzioni violente.</p>
         </div>
 
+        <!-- SISTEMA LIMBICO -->
         <div class="card">
-            <img src="./img/sistema_limbico.jpg">
+            <div class="slider">
+                <button class="prev" onclick="cambiaSlide(this, -1)">❮</button>
+
+                <img src="./img/sistema_limbico1.jpg" class="slide active">
+                <img src="./img/sistema_limbico2.jpg" class="slide">
+
+                <button class="next" onclick="cambiaSlide(this, 1)">❯</button>
+            </div>
+
             <h3>Sistema Limbico</h3>
-            <p>Il sistema limbico è un insieme funzionale di strutture corticali e sottocorticali localizzate prevalentemente nel telencefalo mediale e nel diencefalo, implicate nell’integrazione tra processi emotivi, memoria e regolazione neurovegetativa. Tra i principali componenti si includono ippocampo (memoria dichiarativa e spaziale), amigdala (valutazione emotiva e risposta alla paura), giro del cingolo e ipotalamo (controllo omeostatico ed endocrino).</p>
+            <p>Strutture coinvolte in emozioni, memoria e regolazione neurovegetativa.</p>
         </div>
 
+        <!-- FUNZIONI -->
         <div class="card">
-            <img src="./img/funzioni.JPG">
-            <h3>Funzioni Matematiche </h3>
-            <p> Questo modello rappresenta le funzioni matematiche utili ai non vedenti per poter comprendere in concreto  quali sono le loro caratteristiche e come si sviluppano certe nozioni teoriche nella realtà.</p>
+            <div class="slider">
+                <button class="prev" onclick="cambiaSlide(this, -1)">❮</button>
+
+                <img src="./img/funzioni1.JPG" class="slide active">
+                <img src="./img/funzioni2.JPG" class="slide">
+
+                <button class="next" onclick="cambiaSlide(this, 1)">❯</button>
+            </div>
+
+            <h3>Funzioni Matematiche</h3>
+            <p>Modelli 3D per comprendere le funzioni anche per non vedenti.</p>
         </div>
 
+        <!-- TEMPIO -->
         <div class="card">
-            <img src="./img/tempio.JPG">
+            <div class="slider">
+                <button class="prev" onclick="cambiaSlide(this, -1)">❮</button>
+
+                <img src="./img/tempio1.JPG" class="slide active">
+                <img src="./img/tempio2.JPG" class="slide">
+
+                <button class="next" onclick="cambiaSlide(this, 1)">❯</button>
+            </div>
+
             <h3>Tempio Greco</h3>
-            <p>Si tratta di un modello tridimensionale che rappresenta la struttura tipica di un tempio greco di ordine dorico. Il tempio era considerato la dimora della divinità e non un luogo di raduno per i fedeli, che rimanevano all'esterno.</p>
+            <p>Ricostruzione tridimensionale di un tempio dorico.</p>
         </div>
 
     </div>
@@ -101,4 +148,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
