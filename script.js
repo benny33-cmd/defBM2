@@ -19,14 +19,14 @@ class DatabasePrenotazioni {
         }
 
         // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
+       // 🔴 BLOCCO SLOT OCCUPATO (stessa data + stesso orario)
         let occupato = this.prenotazioni.some(p =>
-            p.progetto === progetto &&
             p.data === data &&
             p.orario === orario
-        );
+);
 
         if (occupato) {
-            alert("⚠️ Questo progetto è già prenotato in questa data e orario!");
+            alert("Questo progetto è già prenotato in questa data e orario!");
             return;
         }
 
