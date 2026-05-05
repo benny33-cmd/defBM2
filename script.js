@@ -20,15 +20,18 @@ class DatabasePrenotazioni {
 
         // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
        // 🔴 BLOCCO SLOT OCCUPATO (stessa data + stesso orario)
-        let occupato = this.prenotazioni.some(p =>
-            p.data === data &&
-            p.orario === orario
-);
+        // Assicurati che 'prenotazioni' sia l'array che contiene i dati del foglio
+     let occupato = prenota.some(p => 
+        p.progetto === progetto && 
+        p.data === data && 
+        p.orario === orario
+    );
 
-        if (occupato) {
-            alert("Questo progetto è già prenotato in questa data e orario!");
-            return;
-        }
+     if (occupato) {
+       alert("Questo progetto è già prenotato in questa data e orario!");
+       return; // Blocca l'esecuzione come nel controllo campi
+  }
+       
 
         // 📡 INVIO DATI
         fetch(this.url, {
