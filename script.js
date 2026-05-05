@@ -19,15 +19,7 @@ class DatabasePrenotazioni {
         const lista = document.getElementById('lista');
     const li = document.createElement('li');
     
-    // Formattiamo il testo da visualizzare
-    li.textContent = `${nome} ha prenotato "${progetto}" per il giorno ${data} alle ore ${orario}`;
-    
-    lista.appendChild(li);
 
-    // Opzionale: pulisci i campi dopo la prenotazione
-    document.getElementById('nome').value = "";
-    document.getElementById('data-prenotazione').value = "";
-}
 
         // se non esiste quell'orario, lo creo
         if (!this.prenotazioni[orario]) {
