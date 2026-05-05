@@ -9,12 +9,25 @@ class DatabasePrenotazioni {
     prenota() {
         let nome = document.getElementById("nome").value;
         let progetto = document.getElementById("progetto").value;
+        let data = document.getElementById('data').value;
         let orario = document.getElementById("orario").value;
 
-        if (nome === "") {
-            alert("Inserisci il nome!");
-            return;
-        }
+       if (nome === "" || data === "") {
+        alert("Per favore, inserisci nome e data!");
+        return;
+    }
+        const lista = document.getElementById('lista');
+    const li = document.createElement('li');
+    
+    // Formattiamo il testo da visualizzare
+    li.textContent = `${nome} ha prenotato "${progetto}" per il giorno ${data} alle ore ${orario}`;
+    
+    lista.appendChild(li);
+
+    // Opzionale: pulisci i campi dopo la prenotazione
+    document.getElementById('nome').value = "";
+    document.getElementById('data-prenotazione').value = "";
+}
 
         // se non esiste quell'orario, lo creo
         if (!this.prenotazioni[orario]) {
