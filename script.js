@@ -1,10 +1,10 @@
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbw9qJtE2p5_JlxTB7jyDm5VccCDj9IRoueGvyzXil59jLror-LqdNaEAXdd45btAvha/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbzqiFbj0DxSYVySVp9qpzH6K_400H82y5p7Hb-PvACCR8K3KSOGNF2ivbh7wEVxSjQf/exec";
         this.prenotazioni = [];
         this.lista = document.getElementById("lista");
 
-        this.carica(); // carica dati dal foglio
+        this.carica();
     }
 
     prenota() {
@@ -13,44 +13,41 @@ class DatabasePrenotazioni {
         let data = document.getElementById('data-prenotazione').value;
         let orario = document.getElementById("orario").value;
 
-        // ✅ VALIDAZIONE
         if (nome === "" || data === "" || orario === "") {
-            alert("Per favore, compila tutti i campi!");
+            alert("Compila tutti i campi!");
             return;
         }
 
-        // 🔴 CONTROLLO duplicato (locale)
-        let giaPrenotato = this.prenotazioni.some(pren => 
-            pren.progetto === progetto && 
-            pren.data === data && 
-            pren.orario === orario
+        // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
+        let occupato = this.prenotazioni.some(p =>
+            p.progetto === progetto &&
+            p.data === data &&
+            p.orario === orario
         );
 
-        if (giaPrenotato) {
-            alert("Questo progetto è già occupato per la data e l'orario selezionati!");
+        if (occupato) {
+            alert("⚠️ Questo progetto è già prenotato in questa data e orario!");
             return;
         }
 
-        // 📡 INVIO A GOOGLE SHEETS
+        // 📡 INVIO DATI
         fetch(this.url, {
-        method: "POST",
-        mode: "no-cors", // Necessario per Apps Script
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, progetto, orario, data })
+            method: "POST",
+            body: JSON.stringify({
+                azione: "aggiungi",
+                nome,
+                progetto,
+                orario,
+                data
+            })
         })
-        .then(res => res.text())
-        .then(risposta => {
-            if (risposta === "errore") {
-                alert("Già prenotato nel database!");
-            } else {
-                this.carica(); // aggiorna lista dal server
-                this.pulisciCampi();
-            }
+        .then(() => {
+            this.carica();
+            this.pulisciCampi();
         });
     }
 
-    // 🔄 CARICA DATI DAL FOGLIO
+    // 🔄 CARICA DAL FOGLIO
     carica() {
         fetch(this.url)
         .then(res => res.json())
@@ -63,14 +60,15 @@ class DatabasePrenotazioni {
     aggiornaLista() {
         this.lista.innerHTML = "";
 
-        // ordina per data
-        this.prenotazioni.sort((a, b) => new Date(a.data) - new Date(b.data));
+        this.prenotazioni.sort((a, b) =>
+            new Date(a.data) - new Date(b.data)
+        );
 
         this.prenotazioni.forEach((pren, index) => {
 
             let li = document.createElement("li");
 
-            let dataFormattata = pren.data 
+            let dataFormattata = pren.data
                 ? pren.data.split('-').reverse().join('/')
                 : "";
 
@@ -84,28 +82,26 @@ class DatabasePrenotazioni {
         });
     }
 
-    // ⚠️ NOTA: elimina SOLO lato client (Google Sheets non cancella)
-   elimina(index) {
-    let pren = this.prenotazioni[index];
+    // ❌ ELIMINA (sincronizzato con Google Sheets)
+    elimina(index) {
+        let pren = this.prenotazioni[index];
 
-    fetch(this.url, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            azione: "elimina",
-            nome: pren.nome,
-            progetto: pren.progetto,
-            orario: pren.orario,
-            data: pren.data
+        fetch(this.url, {
+            method: "POST",
+            body: JSON.stringify({
+                azione: "elimina",
+                nome: pren.nome,
+                progetto: pren.progetto,
+                orario: pren.orario,
+                data: pren.data
+            })
         })
-    }).then(() => {
-        this.carica(); // aggiorna lista
-    });
-}
+        .then(() => {
+            this.carica();
+        });
+    }
 
     salva() {
-        // NON serve più con Google Sheets, ma la lasciamo per compatibilità
         localStorage.setItem("prenotazioni", JSON.stringify(this.prenotazioni));
     }
 
@@ -115,10 +111,8 @@ class DatabasePrenotazioni {
     }
 }
 
-// ISTANZA
 const db = new DatabasePrenotazioni();
 
-// collegamento bottone HTML
 function prenota() {
     db.prenota();
 }
