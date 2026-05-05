@@ -86,8 +86,7 @@ const db = {
   appId: "1:686239383777:web:20204439dd2d940f8c37a0",
   measurementId: "G-WPLFFDLZZY"
 };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+
 function prenota() {
     db.prenota();
 }
