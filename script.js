@@ -27,6 +27,22 @@ class DatabasePrenotazioni {
     });
 }
 
+    function carica() {
+    fetch("INCOLLA_QUI_URL")
+    .then(res => res.json())
+    .then(data => {
+        let lista = document.getElementById("lista");
+        lista.innerHTML = "";
+
+        data.forEach(p => {
+            let li = document.createElement("li");
+            li.textContent = `${p.orario} → ${p.nome} - ${p.progetto}`;
+            lista.appendChild(li);
+        });
+    });
+}
+    carica();
+
         // Validazione campi
         if (nome === "" || data === "" || orario === "") {
             alert("Per favore, compila tutti i campi (Nome, Data e Orario)!");
