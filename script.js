@@ -12,6 +12,21 @@ class DatabasePrenotazioni {
         let data = document.getElementById('data-prenotazione').value; // Assicurati che l'ID sia corretto
         let orario = document.getElementById("orario").value;
 
+      
+    fetch("https://script.google.com/macros/s/AKfycbyQHeLRHuiqiaMAcKfJwYpIvBzuhxfOnPOgr0DNCUHUjNLJsGVx4vN6P45WZLFcd46d/exec", {
+        method: "POST",
+        body: JSON.stringify({ nome, progetto, orario })
+    })
+    .then(res => res.text())
+    .then(data => {
+        if (data === "errore") {
+            alert("Già prenotato!");
+        } else {
+            carica();
+        }
+    });
+}
+
         // Validazione campi
         if (nome === "" || data === "" || orario === "") {
             alert("Per favore, compila tutti i campi (Nome, Data e Orario)!");
