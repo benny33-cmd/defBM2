@@ -1,96 +1,85 @@
 class DatabasePrenotazioni {
     constructor() {
+        // URL della tua Web App (Assicurati che sia l'ultima versione pubblicata)
         this.url = "https://script.google.com/macros/s/AKfycbz2Kb_5X7bUSR_olDgRSbbG1lSP5SAw2JqIiZYOi3F86ghjv4xuGtqCin7z8MPw6jv3/exec";
         this.prenotazioni = [];
         this.lista = document.getElementById("lista");
 
+        // Caricamento iniziale
         this.carica();
     }
 
-    async carica() {
-        try {
-            const res = await fetch(this.url + "?t=" + Date.now());
-            this.prenotazioni = await res.json();
-            this.aggiornaLista();
-        } catch (err) {
-            console.error("Errore nel caricamento dati:", err);
-        }
+    // 🔄 CARICA DAL FOGLIO
+    carica() {
+        fetch(this.url + "?t=" + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                this.prenotazioni = data;
+                this.aggiornaLista();
+            })
+            .catch(err => console.error("Errore nel caricamento dati:", err));
     }
 
-    normalizzaData(d) {
-        if (!d) return "";
-
-        if (d.includes("/")) {
-            let [gg, mm, aa] = d.split("/");
-            return `${aa}-${mm}-${gg}`;
-        }
-
-        return d.split("T")[0];
-    }
-
-    async prenota() {
+    prenota() {
         let nome = document.getElementById("nome").value;
         let progetto = document.getElementById("progetto").value;
         let dataInput = document.getElementById("data-prenotazione").value;
         let orario = document.getElementById("orario").value;
 
-        if (!nome || !dataInput || !orario) {
+        // 1. CONTROLLO CAMPI VUOTI
+        if (nome === "" || dataInput === "" || orario === "" || progetto === "") {
             alert("Compila tutti i campi!");
             return;
         }
 
-        await this.carica();
-
-        // 🔴 BLOCCO SLOT (data + ora)
+        // 🔄 BLOCCO: progetto già prenotato
         let occupato = this.prenotazioni.some(p =>
-            this.normalizzaData(p.data) === dataInput &&
-            String(p.orario).trim() === String(orario).trim()
+            String(p.progetto).trim() === String(progetto).trim()
         );
 
         if (occupato) {
-            alert("❌ Già prenotato in questa data e orario!");
+            alert("❌ Questo progetto è già stato prenotato e non può essere prenotato di nuovo!");
             return;
         }
 
-        try {
-            await fetch(this.url, {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify({
-                    azione: "aggiungi",
-                    nome,
-                    progetto,
-                    orario,
-                    data: dataInput
-                })
-            });
-
+        // 3. 📡 INVIO DATI AL SERVER
+        fetch(this.url, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({
+                azione: "aggiungi",
+                nome: nome,
+                progetto: progetto,
+                orario: orario,
+                data: dataInput
+            })
+        })
+        .then(() => {
             alert("✅ Prenotazione inviata con successo!");
             this.pulisciCampi();
 
+            // refresh dopo 1.5s
             setTimeout(() => this.carica(), 1500);
-
-        } catch (err) {
-            alert("Errore durante l'invio: " + err);
-        }
+        })
+        .catch(err => alert("Errore durante l'invio: " + err));
     }
 
     aggiornaLista() {
         if (!this.lista) return;
-
         this.lista.innerHTML = "";
 
-        this.prenotazioni.sort((a, b) =>
-            new Date(this.normalizzaData(a.data)) - new Date(this.normalizzaData(b.data))
-        );
+        // Ordina per data
+        this.prenotazioni.sort((a, b) => new Date(a.data) - new Date(b.data));
 
         this.prenotazioni.forEach((pren, index) => {
             let li = document.createElement("li");
 
-            let dataFormattata = this.normalizzaData(pren.data)
-                .split("-")
-                .reverse()
-                .join("/");
+            let dataFormattata = pren.data
+                ? (pren.data.includes("T")
+                    ? pren.data.split("T")[0]
+                    : pren.data
+                ).split("-").reverse().join("/")
+                : "";
 
             li.innerHTML = `
                 <strong>${dataFormattata}</strong> ore <strong>${pren.orario}</strong>: 
@@ -117,9 +106,10 @@ class DatabasePrenotazioni {
                 orario: pren.orario,
                 data: pren.data
             })
+        })
+        .then(() => {
+            setTimeout(() => this.carica(), 1500);
         });
-
-        setTimeout(() => this.carica(), 1500);
     }
 
     pulisciCampi() {
@@ -133,6 +123,7 @@ class DatabasePrenotazioni {
 // Inizializzazione
 const db = new DatabasePrenotazioni();
 
+// Funzione globale
 function prenota() {
     db.prenota();
 }
