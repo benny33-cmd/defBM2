@@ -13,23 +13,19 @@ class DatabasePrenotazioni {
             this.prenotazioni = await res.json();
             this.aggiornaLista();
         } catch (err) {
-            console.error("Errore caricamento:", err);
+            console.error("Errore nel caricamento dati:", err);
         }
     }
 
     normalizzaData(d) {
         if (!d) return "";
 
-        // yyyy-mm-dd già ok
-        if (d.includes("-")) return d.split("T")[0];
-
-        // dd/mm/yyyy
         if (d.includes("/")) {
             let [gg, mm, aa] = d.split("/");
             return `${aa}-${mm}-${gg}`;
         }
 
-        return d;
+        return d.split("T")[0];
     }
 
     async prenota() {
@@ -45,7 +41,7 @@ class DatabasePrenotazioni {
 
         await this.carica();
 
-        // 🔴 BLOCCO VERO (stesso giorno + ora)
+        // 🔴 BLOCCO SLOT (data + ora)
         let occupato = this.prenotazioni.some(p =>
             this.normalizzaData(p.data) === dataInput &&
             String(p.orario).trim() === String(orario).trim()
@@ -57,11 +53,9 @@ class DatabasePrenotazioni {
         }
 
         try {
-            const res = await fetch(this.url, {
+            await fetch(this.url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                mode: "no-cors",
                 body: JSON.stringify({
                     azione: "aggiungi",
                     nome,
@@ -71,24 +65,19 @@ class DatabasePrenotazioni {
                 })
             });
 
-            const result = await res.text();
-
-            if (result.includes("GIÀ PRENOTATO")) {
-                alert("❌ Slot già occupato (server)");
-                return;
-            }
-
-            alert("✅ Prenotazione effettuata!");
+            alert("✅ Prenotazione inviata con successo!");
             this.pulisciCampi();
-            this.carica();
+
+            setTimeout(() => this.carica(), 1500);
 
         } catch (err) {
-            console.error(err);
-            alert("Errore invio prenotazione");
+            alert("Errore durante l'invio: " + err);
         }
     }
 
     aggiornaLista() {
+        if (!this.lista) return;
+
         this.lista.innerHTML = "";
 
         this.prenotazioni.sort((a, b) =>
@@ -115,13 +104,12 @@ class DatabasePrenotazioni {
 
     elimina(index) {
         let pren = this.prenotazioni[index];
+
         if (!confirm("Vuoi davvero eliminare questa prenotazione?")) return;
 
         fetch(this.url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            mode: "no-cors",
             body: JSON.stringify({
                 azione: "elimina",
                 nome: pren.nome,
@@ -129,17 +117,20 @@ class DatabasePrenotazioni {
                 orario: pren.orario,
                 data: pren.data
             })
-        })
-        .then(() => this.carica());
+        });
+
+        setTimeout(() => this.carica(), 1500);
     }
 
     pulisciCampi() {
         document.getElementById("nome").value = "";
+        document.getElementById("progetto").value = "";
         document.getElementById("data-prenotazione").value = "";
         document.getElementById("orario").value = "";
     }
 }
 
+// Inizializzazione
 const db = new DatabasePrenotazioni();
 
 function prenota() {
