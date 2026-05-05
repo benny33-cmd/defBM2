@@ -76,17 +76,6 @@ class DatabasePrenotazioni {
 // ISTANZA
 const db = new DatabasePrenotazioni();
 
-const db = {
-  apiKey: "AIzaSyBoIe3yn8Krmpb6_TW8_k3kXSQc6kdyxtY",
-  authDomain: "laboratorio3d-99cc8.firebaseapp.com",
-  databaseURL: "https://laboratorio3d-99cc8-default-rtdb.firebaseio.com",
-  projectId: "laboratorio3d-99cc8",
-  storageBucket: "laboratorio3d-99cc8.firebasestorage.app",
-  messagingSenderId: "686239383777",
-  appId: "1:686239383777:web:20204439dd2d940f8c37a0",
-  measurementId: "G-WPLFFDLZZY"
-};
-
 function prenota() {
     db.prenota();
 }
