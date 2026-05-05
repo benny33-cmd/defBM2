@@ -1,4 +1,8 @@
-let prenotazioni = {};
+// CARICA prenotazioni dal "database" (LocalStorage)
+let prenotazioni = JSON.parse(localStorage.getItem("prenotazioni")) || {};
+
+// Mostra subito le prenotazioni salvate
+aggiornaLista();
 
 function prenota() {
     let nome = document.getElementById("nome").value;
@@ -17,6 +21,7 @@ function prenota() {
 
     prenotazioni[orario] = nome + " - " + progetto;
 
+    salvaDatabase();
     aggiornaLista();
 }
 
@@ -26,29 +31,24 @@ function aggiornaLista() {
 
     for (let orario in prenotazioni) {
         let li = document.createElement("li");
-        li.textContent = orario + " → " + prenotazioni[orario];
+
+        li.innerHTML = `
+            ${orario} → ${prenotazioni[orario]}
+            <button onclick="eliminaPrenotazione('${orario}')">❌</button>
+        `;
+
         lista.appendChild(li);
     }
 }
 
-/* SLIDER */
-function cambiaSlide(btn, direzione) {
-    let slider = btn.parentElement;
-    let slides = slider.querySelectorAll(".slide");
+// Salva nel "database"
+function salvaDatabase() {
+    localStorage.setItem("prenotazioni", JSON.stringify(prenotazioni));
+}
 
-    let index = 0;
-
-    slides.forEach((slide, i) => {
-        if (slide.classList.contains("active")) {
-            index = i;
-        }
-        slide.classList.remove("active");
-    });
-
-    index += direzione;
-
-    if (index < 0) index = slides.length - 1;
-    if (index >= slides.length) index = 0;
-
-    slides[index].classList.add("active");
+// Elimina prenotazione
+function eliminaPrenotazione(orario) {
+    delete prenotazioni[orario];
+    salvaDatabase();
+    aggiornaLista();
 }
