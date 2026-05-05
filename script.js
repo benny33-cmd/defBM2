@@ -33,8 +33,11 @@ class DatabasePrenotazioni {
 
         // 📡 INVIO A GOOGLE SHEETS
         fetch(this.url, {
-            method: "POST",
-            body: JSON.stringify({ nome, progetto, orario, data })
+        method: "POST",
+        mode: "no-cors", // Necessario per Apps Script
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, progetto, orario, data })
         })
         .then(res => res.text())
         .then(risposta => {
