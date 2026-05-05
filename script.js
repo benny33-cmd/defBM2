@@ -33,10 +33,22 @@ class DatabasePrenotazioni {
             return;
         }
 
+        function normalizzaData(d) {
+    if (!d) return "";
+    if (d.includes("/")) {
+        // da dd/mm/yyyy → yyyy-mm-dd
+        let [gg, mm, aa] = d.split("/");
+        return `${aa}-${mm}-${gg}`;
+    }
+    return d; // già yyyy-mm-dd
+}
+
+        await this.carica(); // 🔥 forza aggiornamento
         // 2. 🔴 BLOCCO DOPPIONE (Verifica se esiste già nel database locale)
-        let occupato = this.prenotazioni.some(p => {
-            // Pulizia dei dati per il confronto (rimozione di eventuali timestamp dalle date del foglio)
-            let dataFoglio = p.data.includes("T") ? p.data.split("T")[0] : p.data;
+       let occupato = this.prenotazioni.some(p =>
+    normalizzaData(p.data) === data &&
+    p.orario === orario
+);
             
             return dataFoglio === dataInput && 
                    String(p.orario).trim() === String(orario).trim() &&
