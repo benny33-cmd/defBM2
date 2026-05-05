@@ -85,10 +85,24 @@ class DatabasePrenotazioni {
     }
 
     // ⚠️ NOTA: elimina SOLO lato client (Google Sheets non cancella)
-    elimina(index) {
-        this.prenotazioni.splice(index, 1);
-        this.aggiornaLista();
-    }
+   elimina(index) {
+    let pren = this.prenotazioni[index];
+
+    fetch(this.url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            azione: "elimina",
+            nome: pren.nome,
+            progetto: pren.progetto,
+            orario: pren.orario,
+            data: pren.data
+        })
+    }).then(() => {
+        this.carica(); // aggiorna lista
+    });
+}
 
     salva() {
         // NON serve più con Google Sheets, ma la lasciamo per compatibilità
