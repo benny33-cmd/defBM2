@@ -1,6 +1,6 @@
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbwSbC7mVy1atvaVrtpzAfUv2Ci5J-o-MsjYA_vvxXQELoCETEqWqPg4cWpXRXRtdwRe/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbxTPVEWljPhDbv0VtaeoPcU45YQuUJjiqfLGN8Ee6VlcKSv_Q5bi_66df_oitrb_r6u/exec";
         this.prenotazioni = [];
         this.lista = document.getElementById("lista");
 
