@@ -1,84 +1,78 @@
 class DatabasePrenotazioni {
     constructor() {
-        // URL della tua Web App (Assicurati che sia l'ultima versione pubblicata)
         this.url = "https://script.google.com/macros/s/AKfycbz2Kb_5X7bUSR_olDgRSbbG1lSP5SAw2JqIiZYOi3F86ghjv4xuGtqCin7z8MPw6jv3/exec";
         this.prenotazioni = [];
         this.lista = document.getElementById("lista");
 
-        // Caricamento iniziale
         this.carica();
-    }
-
-    // 🔄 CARICA DAL FOGLIO
-    carica() {
-        fetch(this.url + "?t=" + new Date().getTime())
-            .then(res => res.json())
-            .then(data => {
-                this.prenotazioni = data;
-                this.aggiornaLista();
-            })
-            .catch(err => console.error("Errore nel caricamento dati:", err));
     }
 
     prenota() {
         let nome = document.getElementById("nome").value;
         let progetto = document.getElementById("progetto").value;
-        let dataInput = document.getElementById("data-prenotazione").value;
+        let data = document.getElementById('data-prenotazione').value;
         let orario = document.getElementById("orario").value;
 
-        // 1. CONTROLLO CAMPI VUOTI
-        if (nome === "" || dataInput === "" || orario === "" || progetto === "") {
+        if (nome === "" || data === "" || orario === "") {
             alert("Compila tutti i campi!");
             return;
         }
 
-        // 🔄 BLOCCO: progetto già prenotato
-        let occupato = this.prenotazioni.some(p =>
-            String(p.progetto).trim() === String(progetto).trim()
-        );
+        // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
+       // 🔴 BLOCCO SLOT OCCUPATO (stessa data + stesso orario)
+        // Assicurati che 'prenotazioni' sia l'array che contiene i dati del foglio
+     let occupato = this.prenotazioni.some(p => 
+        p.progetto === progetto && 
+        p.data === data && 
+        p.orario === orario
+    );
 
-        if (occupato) {
-            alert("❌ Questo progetto è già stato prenotato e non può essere prenotato di nuovo!");
-            return;
-        }
+     if (occupato) {
+       alert("Questo progetto è già prenotato in questa data e orario!");
+       return; // Blocca l'esecuzione come nel controllo campi
+  }
+       
 
-        // 3. 📡 INVIO DATI AL SERVER
+        // 📡 INVIO DATI
         fetch(this.url, {
             method: "POST",
-            mode: "no-cors",
             body: JSON.stringify({
                 azione: "aggiungi",
-                nome: nome,
-                progetto: progetto,
-                orario: orario,
-                data: dataInput
+                nome,
+                progetto,
+                orario,
+                data
             })
         })
         .then(() => {
-            alert("✅ Prenotazione inviata con successo!");
+            this.carica();
             this.pulisciCampi();
+        });
+    }
 
-            // refresh dopo 1.5s
-            setTimeout(() => this.carica(), 1500);
-        })
-        .catch(err => alert("Errore durante l'invio: " + err));
+    // 🔄 CARICA DAL FOGLIO
+    carica() {
+        fetch(this.url)
+        .then(res => res.json())
+        .then(data => {
+            this.prenotazioni = data;
+            this.aggiornaLista();
+        });
     }
 
     aggiornaLista() {
-        if (!this.lista) return;
         this.lista.innerHTML = "";
 
-        // Ordina per data
-        this.prenotazioni.sort((a, b) => new Date(a.data) - new Date(b.data));
+        this.prenotazioni.sort((a, b) =>
+            new Date(a.data) - new Date(b.data)
+        );
 
         this.prenotazioni.forEach((pren, index) => {
+
             let li = document.createElement("li");
 
             let dataFormattata = pren.data
-                ? (pren.data.includes("T")
-                    ? pren.data.split("T")[0]
-                    : pren.data
-                ).split("-").reverse().join("/")
+                ? pren.data.split('-').reverse().join('/')
                 : "";
 
             li.innerHTML = `
@@ -91,14 +85,12 @@ class DatabasePrenotazioni {
         });
     }
 
+    // ❌ ELIMINA (sincronizzato con Google Sheets)
     elimina(index) {
         let pren = this.prenotazioni[index];
 
-        if (!confirm("Vuoi davvero eliminare questa prenotazione?")) return;
-
         fetch(this.url, {
             method: "POST",
-            mode: "no-cors",
             body: JSON.stringify({
                 azione: "elimina",
                 nome: pren.nome,
@@ -108,22 +100,22 @@ class DatabasePrenotazioni {
             })
         })
         .then(() => {
-            setTimeout(() => this.carica(), 1500);
+            this.carica();
         });
+    }
+
+    salva() {
+        localStorage.setItem("prenotazioni", JSON.stringify(this.prenotazioni));
     }
 
     pulisciCampi() {
         document.getElementById("nome").value = "";
-        document.getElementById("progetto").value = "";
         document.getElementById("data-prenotazione").value = "";
-        document.getElementById("orario").value = "";
     }
 }
 
-// Inizializzazione
 const db = new DatabasePrenotazioni();
 
-// Funzione globale
 function prenota() {
     db.prenota();
 }
