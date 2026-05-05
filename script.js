@@ -16,12 +16,20 @@ class DatabasePrenotazioni {
             return;
         }
 
-        // se non esiste quell'orario, lo creo come array
+        // se non esiste quell'orario, lo creo
         if (!this.prenotazioni[orario]) {
             this.prenotazioni[orario] = [];
         }
 
-        // aggiungo prenotazione (NON sovrascrive)
+        // 🔴 CONTROLLO: stesso progetto nello stesso orario
+        let esiste = this.prenotazioni[orario].some(pren => pren.progetto === progetto);
+
+        if (esiste) {
+            alert("Questo progetto è già prenotato in questo orario!");
+            return;
+        }
+
+        // aggiunta prenotazione
         this.prenotazioni[orario].push({
             nome: nome,
             progetto: progetto
@@ -52,7 +60,6 @@ class DatabasePrenotazioni {
     elimina(orario, index) {
         this.prenotazioni[orario].splice(index, 1);
 
-        // se non ci sono più prenotazioni in quell'orario, lo elimino
         if (this.prenotazioni[orario].length === 0) {
             delete this.prenotazioni[orario];
         }
@@ -66,10 +73,9 @@ class DatabasePrenotazioni {
     }
 }
 
-// ISTANZA GLOBALE
+// ISTANZA
 const db = new DatabasePrenotazioni();
 
-// collega il bottone HTML
 function prenota() {
     db.prenota();
 }
