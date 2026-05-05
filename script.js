@@ -1,74 +1,73 @@
 class DatabasePrenotazioni {
     constructor() {
-        this.prenotazioni = JSON.parse(localStorage.getItem("prenotazioni")) || {};
+        // Carica le prenotazioni o crea un oggetto vuoto
+        this.prenotazioni = JSON.parse(localStorage.getItem("prenotazioni")) || [];
         this.lista = document.getElementById("lista");
-
         this.aggiornaLista();
     }
 
     prenota() {
         let nome = document.getElementById("nome").value;
         let progetto = document.getElementById("progetto").value;
-        let data = document.getElementById('data').value;
+        let data = document.getElementById('data-prenotazione').value; // Assicurati che l'ID sia corretto
         let orario = document.getElementById("orario").value;
 
-       if (nome === "" || data === "") {
-        alert("Per favore, inserisci nome e data!");
-        return;
-    }
-        const lista = document.getElementById('lista');
-    const li = document.createElement('li');
-    
-
-
-        // se non esiste quell'orario, lo creo
-        if (!this.prenotazioni[orario]) {
-            this.prenotazioni[orario] = [];
-        }
-
-        // 🔴 CONTROLLO: stesso progetto nello stesso orario
-        let esiste = this.prenotazioni[orario].some(pren => pren.progetto === progetto);
-
-        if (esiste) {
-            alert("Questo progetto è già prenotato in questo orario!");
+        // Validazione campi
+        if (nome === "" || data === "" || orario === "") {
+            alert("Per favore, compila tutti i campi (Nome, Data e Orario)!");
             return;
         }
 
-        // aggiunta prenotazione
-        this.prenotazioni[orario].push({
+        // 🔴 CONTROLLO: Stesso progetto, stessa data e stesso orario
+        // Verifichiamo se esiste già una prenotazione con questi tre criteri
+        let giaPrenotato = this.prenotazioni.some(pren => 
+            pren.progetto === progetto && 
+            pren.data === data && 
+            pren.orario === orario
+        );
+
+        if (giaPrenotato) {
+            alert("Questo progetto è già occupato per la data e l'orario selezionati!");
+            return;
+        }
+
+        // Aggiunta prenotazione all'array
+        this.prenotazioni.push({
             nome: nome,
-            progetto: progetto
+            progetto: progetto,
+            data: data,
+            orario: orario
         });
 
         this.salva();
         this.aggiornaLista();
+        this.pulisciCampi();
     }
 
     aggiornaLista() {
         this.lista.innerHTML = "";
 
-        for (let orario in this.prenotazioni) {
-            this.prenotazioni[orario].forEach((pren, index) => {
+        // Ordiniamo le prenotazioni per data (opzionale ma utile)
+        this.prenotazioni.sort((a, b) => new Date(a.data) - new Date(b.data));
 
-                let li = document.createElement("li");
+        this.prenotazioni.forEach((pren, index) => {
+            let li = document.createElement("li");
+            
+            // Formattazione data italiana (opzionale)
+            let dataFormattata = pren.data.split('-').reverse().join('/');
 
-                li.innerHTML = `
-                    ${orario} → ${pren.nome} - ${pren.progetto}
-                    <button onclick="db.elimina('${orario}', ${index})">❌</button>
-                `;
+            li.innerHTML = `
+                <strong>${dataFormattata}</strong> ore <strong>${pren.orario}</strong>: 
+                ${pren.nome} ha prenotato <em>${pren.progetto}</em>
+                <button onclick="db.elimina(${index})">❌</button>
+            `;
 
-                this.lista.appendChild(li);
-            });
-        }
+            this.lista.appendChild(li);
+        });
     }
 
-    elimina(orario, index) {
-        this.prenotazioni[orario].splice(index, 1);
-
-        if (this.prenotazioni[orario].length === 0) {
-            delete this.prenotazioni[orario];
-        }
-
+    elimina(index) {
+        this.prenotazioni.splice(index, 1);
         this.salva();
         this.aggiornaLista();
     }
@@ -76,14 +75,17 @@ class DatabasePrenotazioni {
     salva() {
         localStorage.setItem("prenotazioni", JSON.stringify(this.prenotazioni));
     }
+
+    pulisciCampi() {
+        document.getElementById("nome").value = "";
+        document.getElementById("data-prenotazione").value = "";
+    }
 }
 
 // ISTANZA
 const db = new DatabasePrenotazioni();
 
+// Funzione chiamata dal tasto HTML
 function prenota() {
     db.prenota();
 }
-
-
-
