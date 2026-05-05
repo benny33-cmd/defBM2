@@ -76,7 +76,7 @@ class DatabasePrenotazioni {
 // ISTANZA
 const db = new DatabasePrenotazioni();
 
-const firebaseConfig = {
+const db = {
   apiKey: "AIzaSyBoIe3yn8Krmpb6_TW8_k3kXSQc6kdyxtY",
   authDomain: "laboratorio3d-99cc8.firebaseapp.com",
   databaseURL: "https://laboratorio3d-99cc8-default-rtdb.firebaseio.com",
