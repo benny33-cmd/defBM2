@@ -26,7 +26,7 @@ class DatabasePrenotazioni {
         );
 
         if (occupato) {
-            alert("⚠️ Questo progetto è già prenotato in questa data e orario!");
+            alert("Questo progetto è già prenotato in questa data e orario!");
             return;
         }
 
