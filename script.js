@@ -21,7 +21,7 @@ class DatabasePrenotazioni {
         // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
        // 🔴 BLOCCO SLOT OCCUPATO (stessa data + stesso orario)
         // Assicurati che 'prenotazioni' sia l'array che contiene i dati del foglio
-     let occupato = prenota.some(p => 
+     let occupato = this.prenotazioni.some(p => 
         p.progetto === progetto && 
         p.data === data && 
         p.orario === orario
