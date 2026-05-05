@@ -18,7 +18,7 @@ class DatabasePrenotazioni {
             return;
         }
 
-        // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
+        // 🔴 CONTROLLO DUPLICATO (anche su tutto il database)
         let occupato = this.prenotazioni.some(p =>
             p.progetto === progetto &&
             p.data === data &&
@@ -30,7 +30,6 @@ class DatabasePrenotazioni {
             return;
         }
 
-        // 📡 INVIO DATI
         fetch(this.url, {
             method: "POST",
             body: JSON.stringify({
@@ -47,7 +46,6 @@ class DatabasePrenotazioni {
         });
     }
 
-    // 🔄 CARICA DAL FOGLIO
     carica() {
         fetch(this.url)
         .then(res => res.json())
@@ -60,45 +58,41 @@ class DatabasePrenotazioni {
     aggiornaLista() {
         this.lista.innerHTML = "";
 
-        this.prenotazioni.sort((a, b) =>
-            new Date(a.data) - new Date(b.data)
-        );
+        let oggi = new Date();
+
+        // 🔥 calcolo settimana corrente
+        let inizioSettimana = new Date(oggi);
+        inizioSettimana.setDate(oggi.getDate() - oggi.getDay() + 1); // lunedì
+
+        let fineSettimana = new Date(inizioSettimana);
+        fineSettimana.setDate(inizioSettimana.getDate() + 6);
 
         this.prenotazioni.forEach((pren, index) => {
 
-            let li = document.createElement("li");
+            let dataPren = new Date(pren.data);
 
-            let dataFormattata = pren.data
-                ? pren.data.split('-').reverse().join('/')
-                : "";
+            // 🔴 MOSTRA SOLO SETTIMANA CORRENTE
+            if (dataPren >= inizioSettimana && dataPren <= fineSettimana) {
 
-            li.innerHTML = `
-                <strong>${dataFormattata}</strong> ore <strong>${pren.orario}</strong>: 
-                ${pren.nome} ha prenotato <em>${pren.progetto}</em>
-                <button onclick="db.elimina(${index})">❌</button>
-            `;
+                let li = document.createElement("li");
 
-            this.lista.appendChild(li);
+                let dataFormattata = pren.data
+                    ? pren.data.split('-').reverse().join('/')
+                    : "";
+
+                li.innerHTML = `
+                    <strong>${dataFormattata}</strong> ore <strong>${pren.orario}</strong>: 
+                    ${pren.nome} ha prenotato <em>${pren.progetto}</em>
+                `;
+
+                this.lista.appendChild(li);
+            }
         });
     }
 
-    // ❌ ELIMINA (sincronizzato con Google Sheets)
     elimina(index) {
-        let pren = this.prenotazioni[index];
-
-        fetch(this.url, {
-            method: "POST",
-            body: JSON.stringify({
-                azione: "elimina",
-                nome: pren.nome,
-                progetto: pren.progetto,
-                orario: pren.orario,
-                data: pren.data
-            })
-        })
-        .then(() => {
-            this.carica();
-        });
+        // 🔴 NON cancelliamo dal foglio → solo refresh
+        this.carica();
     }
 
     salva() {
