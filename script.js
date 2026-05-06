@@ -74,9 +74,6 @@ class DatabasePrenotazioni {
 
         fetch(this.url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({
                 nome,
                 progetto,
