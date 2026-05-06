@@ -82,11 +82,19 @@ class DatabasePrenotazioni {
         }
 
         // 🔴 CONTROLLO DUPLICATO PROGETTO
-        let duplicato = this.prenotazioni.some(p => 
-            p.progetto === progetto && 
-            p.data === data && 
-            p.orario === orario
-        );
+        function normalizzaData(d) {
+    if (!d) return "";
+
+    let date = new Date(d);
+
+    return date.toISOString().split("T")[0]; // formato YYYY-MM-DD
+}
+
+let duplicato = this.prenotazioni.some(p => 
+    p.progetto === progetto &&
+    normalizzaData(p.data) === normalizzaData(data) &&
+    p.orario === orario
+);
 
         if (duplicato) {
             mostraMessaggio("❌ Questo progetto è già prenotato in questa data e orario!", "errore");
