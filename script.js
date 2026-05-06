@@ -52,7 +52,8 @@ function cambiaSlide(btn, direzione) {
 ========================= */
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbz-OX_fiKpAeCDx4hu1uZkclHCjCvIrmpTl9arahVyMVJTvuS6nz0tiwtJmZeO4ucU/exec?html=true";
+        // ✅ FIX: tolto ?html=true
+        this.url = "https://script.google.com/macros/s/AKfycbz-OX_fiKpAeCDx4hu1uZkclHCjCvIrmpTl9arahVyMVJTvuS6nz0tiwtJmZeO4ucU/exec";
         this.prenotazioni = [];
 
         this.carica();
@@ -70,9 +71,16 @@ class DatabasePrenotazioni {
             return;
         }
 
+        // 🔧 NORMALIZZA DATA
+        function normalizzaData(d) {
+            if (!d) return "";
+            let date = new Date(d);
+            return date.toISOString().split("T")[0];
+        }
+
         // 🔴 CONTROLLO SLOT OCCUPATO
         let occupato = this.prenotazioni.some(p => 
-            p.data === data && 
+            normalizzaData(p.data) === normalizzaData(data) &&
             p.orario === orario
         );
 
@@ -82,19 +90,11 @@ class DatabasePrenotazioni {
         }
 
         // 🔴 CONTROLLO DUPLICATO PROGETTO
-        function normalizzaData(d) {
-    if (!d) return "";
-
-    let date = new Date(d);
-
-    return date.toISOString().split("T")[0]; // formato YYYY-MM-DD
-}
-
-let duplicato = this.prenotazioni.some(p => 
-    p.progetto === progetto &&
-    normalizzaData(p.data) === normalizzaData(data) &&
-    p.orario === orario
-);
+        let duplicato = this.prenotazioni.some(p => 
+            p.progetto === progetto &&
+            normalizzaData(p.data) === normalizzaData(data) &&
+            p.orario === orario
+        );
 
         if (duplicato) {
             mostraMessaggio("❌ Questo progetto è già prenotato in questa data e orario!", "errore");
@@ -112,16 +112,25 @@ let duplicato = this.prenotazioni.some(p =>
                 data
             })
         })
-        .then(() => {
-            this.carica();
-            this.pulisciCampi();
+        .then(res => res.text())
+        .then(risposta => {
 
-            // ✅ SUCCESSO
-            mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
+            if (risposta === "GIÀ_PRENOTATO") {
+                mostraMessaggio("❌ Progetto già prenotato in questa data e orario!", "errore");
+                return;
+            }
+
+            if (risposta === "OK") {
+                this.carica();
+                this.pulisciCampi();
+                mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
+            } else {
+                mostraMessaggio("⚠️ Errore imprevisto", "errore");
+            }
         });
     }
 
-    // 🔄 CARICA DATI (senza mostrarli)
+    // 🔄 CARICA DATI
     carica() {
         fetch(this.url)
         .then(res => res.json())
@@ -130,7 +139,7 @@ let duplicato = this.prenotazioni.some(p =>
         });
     }
 
-    // ❌ DISATTIVATA (ma lasciata come richiesto)
+    // ❌ DISATTIVATA
     aggiornaLista() {
         return;
     }
