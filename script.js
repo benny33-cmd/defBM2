@@ -1,20 +1,19 @@
 /* =========================
    MESSAGGI A SCHERMO
 ========================= */
-function mostraMessaggio(testo, tipo) {
-    let box = document.getElementById("messaggio");
-
+function mostraMessaggio(testo, tipo = "info") {
+    const box = document.getElementById("messaggio");
     if (!box) return;
 
     box.textContent = testo;
 
-    if (tipo === "errore") {
-        box.style.color = "red";
-    } else if (tipo === "successo") {
-        box.style.color = "green";
-    } else {
-        box.style.color = "black";
-    }
+    const colori = {
+        errore: "red",
+        successo: "green",
+        info: "black"
+    };
+
+    box.style.color = colori[tipo] || "black";
 
     setTimeout(() => {
         box.textContent = "";
@@ -23,32 +22,25 @@ function mostraMessaggio(testo, tipo) {
 
 
 /* =========================
-   SLIDER FOTO
+   SLIDER FOTO (OTTIMIZZATO)
 ========================= */
 function cambiaSlide(btn, direzione) {
-    let slider = btn.parentElement;
-    let slides = slider.querySelectorAll(".slide");
+    const slider = btn.parentElement;
+    const slides = slider.querySelectorAll(".slide");
 
-    let index = 0;
+    const attiva = slider.querySelector(".active");
+    let index = Array.from(slides).indexOf(attiva);
 
-    slides.forEach((slide, i) => {
-        if (slide.classList.contains("active")) {
-            index = i;
-        }
-        slide.classList.remove("active");
-    });
+    attiva.classList.remove("active");
 
-    index += direzione;
-
-    if (index < 0) index = slides.length - 1;
-    if (index >= slides.length) index = 0;
+    index = (index + direzione + slides.length) % slides.length;
 
     slides[index].classList.add("active");
 }
 
 
 /* =========================
-   DATABASE PRENOTAZIONI (UNIFICATO)
+   DATABASE PRENOTAZIONI
 ========================= */
 class DatabasePrenotazioni {
     constructor() {
@@ -62,15 +54,29 @@ class DatabasePrenotazioni {
        PRENOTA
     ========================= */
     prenota() {
-        let nome = document.getElementById("nome").value;
-        let progetto = document.getElementById("progetto").value;
-        let data = document.getElementById("data-prenotazione").value;
-        let orario = document.getElementById("orario").value;
+        const nome = document.getElementById("nome").value.trim();
+        const progetto = document.getElementById("progetto").value;
+        const data = document.getElementById("data-prenotazione").value;
+        const orario = document.getElementById("orario").value;
 
         if (!nome || !progetto || !data || !orario) {
             mostraMessaggio("⚠️ Compila tutti i campi!", "errore");
             return;
         }
+
+        // Controllo duplicati lato client
+        const giàEsiste = this.prenotazioni.some(p =>
+            p.progetto === progetto &&
+            p.data === data &&
+            p.orario === orario
+        );
+
+        if (giàEsiste) {
+            mostraMessaggio("❌ Già prenotato per questo orario!", "errore");
+            return;
+        }
+
+        mostraMessaggio("⏳ Invio prenotazione...", "info");
 
         fetch(this.url, {
             method: "POST",
@@ -86,32 +92,68 @@ class DatabasePrenotazioni {
         })
         .then(res => res.text())
         .then(risposta => {
-
-            console.log("RISPOSTA SERVER:", risposta);
-
             if (risposta === "GIÀ_PRENOTATO") {
-                mostraMessaggio("❌ Progetto già prenotato in questa data e orario!", "errore");
+                mostraMessaggio("❌ Già prenotato!", "errore");
                 return;
             }
 
             if (risposta === "OK") {
-                mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
+                mostraMessaggio("✅ Prenotazione salvata!", "successo");
                 this.carica();
                 this.pulisciCampi();
             } else {
                 mostraMessaggio("⚠️ Errore imprevisto", "errore");
             }
+        })
+        .catch(() => {
+            mostraMessaggio("❌ Errore di connessione", "errore");
         });
     }
 
     /* =========================
-       CARICA PRENOTAZIONI
+       CARICA DATI
     ========================= */
     carica() {
+        mostraMessaggio("🔄 Caricamento dati...", "info");
+
         fetch(this.url)
-        .then(res => res.json())
-        .then(data => {
-            this.prenotazioni = data;
+            .then(res => res.json())
+            .then(data => {
+                this.prenotazioni = data;
+                this.render();
+            })
+            .catch(() => {
+                mostraMessaggio("❌ Errore caricamento dati", "errore");
+            });
+    }
+
+    /* =========================
+       RENDER LISTA
+    ========================= */
+    render() {
+        const lista = document.getElementById("lista");
+        if (!lista) return;
+
+        lista.innerHTML = "";
+
+        if (this.prenotazioni.length === 0) {
+            lista.innerHTML = "<li>Nessuna prenotazione</li>";
+            return;
+        }
+
+        this.prenotazioni.forEach((pren, index) => {
+            const li = document.createElement("li");
+
+            li.textContent = `${pren.nome} - ${pren.progetto} - ${pren.data} - ${pren.orario}`;
+
+            const btn = document.createElement("button");
+            btn.textContent = "❌";
+            btn.style.marginLeft = "10px";
+
+            btn.onclick = () => this.elimina(index);
+
+            li.appendChild(btn);
+            lista.appendChild(li);
         });
     }
 
@@ -119,7 +161,9 @@ class DatabasePrenotazioni {
        ELIMINA
     ========================= */
     elimina(index) {
-        let pren = this.prenotazioni[index];
+        const pren = this.prenotazioni[index];
+
+        if (!confirm("Vuoi eliminare questa prenotazione?")) return;
 
         fetch(this.url, {
             method: "POST",
@@ -135,7 +179,11 @@ class DatabasePrenotazioni {
             })
         })
         .then(() => {
+            mostraMessaggio("🗑️ Prenotazione eliminata", "info");
             this.carica();
+        })
+        .catch(() => {
+            mostraMessaggio("❌ Errore eliminazione", "errore");
         });
     }
 
@@ -144,8 +192,10 @@ class DatabasePrenotazioni {
     ========================= */
     pulisciCampi() {
         document.getElementById("nome").value = "";
-        document.getElementById("progetto").value = "";
         document.getElementById("data-prenotazione").value = "";
+
+        document.getElementById("progetto").selectedIndex = 0;
+        document.getElementById("orario").selectedIndex = 0;
     }
 }
 
@@ -158,3 +208,4 @@ const db = new DatabasePrenotazioni();
 function prenota() {
     db.prenota();
 }
+    
