@@ -23,7 +23,7 @@ function mostraMessaggio(testo, tipo) {
 
 
 /* =========================
-   SLIDER FOTO (INVARIATO)
+   SLIDER FOTO
 ========================= */
 function cambiaSlide(btn, direzione) {
     let slider = btn.parentElement;
@@ -48,64 +48,36 @@ function cambiaSlide(btn, direzione) {
 
 
 /* =========================
-   DATABASE PRENOTAZIONI
+   DATABASE PRENOTAZIONI (UNIFICATO)
 ========================= */
 class DatabasePrenotazioni {
     constructor() {
-        // ✅ FIX: tolto ?html=true
-        this.url = "https://script.google.com/macros/s/AKfycbzqFVXGz-ieZ-zNBCIeCE3euByko7ilIoY3SUFuWnnOhOCAnqzh5jSJeBqdAUIu3owv/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbwL3Bf4F6GAvkHqF0uQzA27uWKZFSTKwcmwHLAt32g0PTKOO-_5IR10VoQzbhqbqV6d/exec";
         this.prenotazioni = [];
 
         this.carica();
     }
 
+    /* =========================
+       PRENOTA
+    ========================= */
     prenota() {
         let nome = document.getElementById("nome").value;
         let progetto = document.getElementById("progetto").value;
-        let data = document.getElementById('data-prenotazione').value;
+        let data = document.getElementById("data-prenotazione").value;
         let orario = document.getElementById("orario").value;
 
-        // 🔴 CONTROLLO CAMPI
-        if (nome === "" || progetto === "" || data === "" || orario === "") {
+        if (!nome || !progetto || !data || !orario) {
             mostraMessaggio("⚠️ Compila tutti i campi!", "errore");
             return;
         }
 
-        // 🔧 NORMALIZZA DATA
-        function normalizzaData(d) {
-            if (!d) return "";
-            let date = new Date(d);
-            return date.toISOString().split("T")[0];
-        }
-
-        // 🔴 CONTROLLO SLOT OCCUPATO
-        let occupato = this.prenotazioni.some(p => 
-            normalizzaData(p.data) === normalizzaData(data) &&
-            p.orario === orario
-        );
-
-        if (occupato) {
-            mostraMessaggio("❌ Orario già prenotato per questa data!", "errore");
-            return;
-        }
-
-        // 🔴 CONTROLLO DUPLICATO PROGETTO
-        let duplicato = this.prenotazioni.some(p => 
-            p.progetto === progetto &&
-            normalizzaData(p.data) === normalizzaData(data) &&
-            p.orario === orario
-        );
-
-        if (duplicato) {
-            mostraMessaggio("❌ Questo progetto è già prenotato in questa data e orario!", "errore");
-            return;
-        }
-
-        // 📡 INVIO DATI
         fetch(this.url, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
-                azione: "aggiungi",
                 nome,
                 progetto,
                 orario,
@@ -115,22 +87,26 @@ class DatabasePrenotazioni {
         .then(res => res.text())
         .then(risposta => {
 
+            console.log("RISPOSTA SERVER:", risposta);
+
             if (risposta === "GIÀ_PRENOTATO") {
                 mostraMessaggio("❌ Progetto già prenotato in questa data e orario!", "errore");
                 return;
             }
 
             if (risposta === "OK") {
+                mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
                 this.carica();
                 this.pulisciCampi();
-                mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
             } else {
                 mostraMessaggio("⚠️ Errore imprevisto", "errore");
             }
         });
     }
 
-    // 🔄 CARICA DATI
+    /* =========================
+       CARICA PRENOTAZIONI
+    ========================= */
     carica() {
         fetch(this.url)
         .then(res => res.json())
@@ -139,16 +115,17 @@ class DatabasePrenotazioni {
         });
     }
 
-    // ❌ DISATTIVATA
-    aggiornaLista() {
-        return;
-    }
-
+    /* =========================
+       ELIMINA
+    ========================= */
     elimina(index) {
         let pren = this.prenotazioni[index];
 
         fetch(this.url, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
                 azione: "elimina",
                 nome: pren.nome,
@@ -162,6 +139,9 @@ class DatabasePrenotazioni {
         });
     }
 
+    /* =========================
+       PULISCI CAMPI
+    ========================= */
     pulisciCampi() {
         document.getElementById("nome").value = "";
         document.getElementById("progetto").value = "";
