@@ -1,4 +1,28 @@
 /* =========================
+   MESSAGGI A SCHERMO
+========================= */
+function mostraMessaggio(testo, tipo) {
+    let box = document.getElementById("messaggio");
+
+    if (!box) return;
+
+    box.textContent = testo;
+
+    if (tipo === "errore") {
+        box.style.color = "red";
+    } else if (tipo === "successo") {
+        box.style.color = "green";
+    } else {
+        box.style.color = "black";
+    }
+
+    setTimeout(() => {
+        box.textContent = "";
+    }, 3000);
+}
+
+
+/* =========================
    SLIDER FOTO (INVARIATO)
 ========================= */
 function cambiaSlide(btn, direzione) {
@@ -31,9 +55,6 @@ class DatabasePrenotazioni {
         this.url = "https://script.google.com/macros/s/AKfycbz2Kb_5X7bUSR_olDgRSbbG1lSP5SAw2JqIiZYOi3F86ghjv4xuGtqCin7z8MPw6jv3/exec";
         this.prenotazioni = [];
 
-        // ❌ NON SERVE PIÙ LA LISTA
-        // this.lista = document.getElementById("lista");
-
         this.carica();
     }
 
@@ -43,21 +64,24 @@ class DatabasePrenotazioni {
         let data = document.getElementById('data-prenotazione').value;
         let orario = document.getElementById("orario").value;
 
-        if (nome === "" || data === "" || orario === "") {
-            alert("Compila tutti i campi!");
+        // 🔴 CONTROLLO CAMPI
+        if (nome === "" || progetto === "" || data === "" || orario === "") {
+            mostraMessaggio("⚠️ Compila tutti i campi!", "errore");
             return;
         }
 
+        // 🔴 CONTROLLO SLOT OCCUPATO
         let occupato = this.prenotazioni.some(p => 
             p.data === data && 
             p.orario === orario
         );
 
         if (occupato) {
-            alert("Orario già prenotato per questa data!");
+            mostraMessaggio("❌ Orario già prenotato per questa data!", "errore");
             return;
         }
 
+        // 🔴 CONTROLLO DUPLICATO PROGETTO
         let duplicato = this.prenotazioni.some(p => 
             p.progetto === progetto && 
             p.data === data && 
@@ -65,10 +89,11 @@ class DatabasePrenotazioni {
         );
 
         if (duplicato) {
-            alert("Questo progetto è già prenotato in questa data e orario!");
+            mostraMessaggio("❌ Questo progetto è già prenotato in questa data e orario!", "errore");
             return;
         }
 
+        // 📡 INVIO DATI
         fetch(this.url, {
             method: "POST",
             body: JSON.stringify({
@@ -82,22 +107,22 @@ class DatabasePrenotazioni {
         .then(() => {
             this.carica();
             this.pulisciCampi();
+
+            // ✅ SUCCESSO
+            mostraMessaggio("✅ Prenotazione salvata con successo!", "successo");
         });
     }
 
-    // 🔄 CARICA DATI (ma NON li mostra)
+    // 🔄 CARICA DATI (senza mostrarli)
     carica() {
         fetch(this.url)
         .then(res => res.json())
         .then(data => {
             this.prenotazioni = data;
-
-            // ❌ BLOCCATA LA VISUALIZZAZIONE
-            // this.aggiornaLista();
         });
     }
 
-    // ❌ DISATTIVATA COMPLETAMENTE
+    // ❌ DISATTIVATA (ma lasciata come richiesto)
     aggiornaLista() {
         return;
     }
