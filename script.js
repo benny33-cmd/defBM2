@@ -1,4 +1,4 @@
-/* =========================
+/* ========================
    MESSAGGI
 ========================= */
 function mostraMessaggio(testo, tipo = "info") {
