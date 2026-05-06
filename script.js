@@ -52,7 +52,7 @@ function cambiaSlide(btn, direzione) {
 ========================= */
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbwL3Bf4F6GAvkHqF0uQzA27uWKZFSTKwcmwHLAt32g0PTKOO-_5IR10VoQzbhqbqV6d/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbwL3Bf4F6GAvkHqF0uQzA27uWKZFSTKwcmwHLAt32g0PTKOO-_5IR10VoQzbhqbqV6d/exec?html=true";
         this.prenotazioni = [];
 
         this.carica();
