@@ -1,8 +1,38 @@
+/* =========================
+   SLIDER FOTO (INVARIATO)
+========================= */
+function cambiaSlide(btn, direzione) {
+    let slider = btn.parentElement;
+    let slides = slider.querySelectorAll(".slide");
+
+    let index = 0;
+
+    slides.forEach((slide, i) => {
+        if (slide.classList.contains("active")) {
+            index = i;
+        }
+        slide.classList.remove("active");
+    });
+
+    index += direzione;
+
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+
+    slides[index].classList.add("active");
+}
+
+
+/* =========================
+   DATABASE PRENOTAZIONI
+========================= */
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbzIxqwRqyRO3zkCGqoZxdxxakrF1G-wum9k_ArzkWZSq-Rcf-gjImoFrLvt62PlIges/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbz2Kb_5X7bUSR_olDgRSbbG1lSP5SAw2JqIiZYOi3F86ghjv4xuGtqCin7z8MPw6jv3/exec";
         this.prenotazioni = [];
-        this.lista = document.getElementById("lista");
+
+        // ❌ NON SERVE PIÙ LA LISTA
+        // this.lista = document.getElementById("lista");
 
         this.carica();
     }
@@ -18,22 +48,27 @@ class DatabasePrenotazioni {
             return;
         }
 
-        // 🔴 BLOCCO DOPPIONE (stesso progetto, stessa data, stesso orario)
-       // 🔴 BLOCCO SLOT OCCUPATO (stessa data + stesso orario)
-        // Assicurati che 'prenotazioni' sia l'array che contiene i dati del foglio
-     let occupato = this.prenotazioni.some(p => 
-        p.progetto === progetto && 
-        p.data === data && 
-        p.orario === orario
-    );
+        let occupato = this.prenotazioni.some(p => 
+            p.data === data && 
+            p.orario === orario
+        );
 
-     if (occupato) {
-       alert("Questo progetto è già prenotato in questa data e orario!");
-       return; // Blocca l'esecuzione come nel controllo campi
-  }
-       
+        if (occupato) {
+            alert("Orario già prenotato per questa data!");
+            return;
+        }
 
-        // 📡 INVIO DATI
+        let duplicato = this.prenotazioni.some(p => 
+            p.progetto === progetto && 
+            p.data === data && 
+            p.orario === orario
+        );
+
+        if (duplicato) {
+            alert("Questo progetto è già prenotato in questa data e orario!");
+            return;
+        }
+
         fetch(this.url, {
             method: "POST",
             body: JSON.stringify({
@@ -50,42 +85,23 @@ class DatabasePrenotazioni {
         });
     }
 
-    // 🔄 CARICA DAL FOGLIO
+    // 🔄 CARICA DATI (ma NON li mostra)
     carica() {
         fetch(this.url)
         .then(res => res.json())
         .then(data => {
             this.prenotazioni = data;
-            this.aggiornaLista();
+
+            // ❌ BLOCCATA LA VISUALIZZAZIONE
+            // this.aggiornaLista();
         });
     }
 
+    // ❌ DISATTIVATA COMPLETAMENTE
     aggiornaLista() {
-        this.lista.innerHTML = "";
-
-        this.prenotazioni.sort((a, b) =>
-            new Date(a.data) - new Date(b.data)
-        );
-
-        this.prenotazioni.forEach((pren, index) => {
-
-            let li = document.createElement("li");
-
-            let dataFormattata = pren.data
-                ? pren.data.split('-').reverse().join('/')
-                : "";
-
-            li.innerHTML = `
-                <strong>${dataFormattata}</strong> ore <strong>${pren.orario}</strong>: 
-                ${pren.nome} ha prenotato <em>${pren.progetto}</em>
-                <button onclick="db.elimina(${index})">❌</button>
-            `;
-
-            this.lista.appendChild(li);
-        });
+        return;
     }
 
-    // ❌ ELIMINA (sincronizzato con Google Sheets)
     elimina(index) {
         let pren = this.prenotazioni[index];
 
@@ -104,16 +120,17 @@ class DatabasePrenotazioni {
         });
     }
 
-    salva() {
-        localStorage.setItem("prenotazioni", JSON.stringify(this.prenotazioni));
-    }
-
     pulisciCampi() {
         document.getElementById("nome").value = "";
+        document.getElementById("progetto").value = "";
         document.getElementById("data-prenotazione").value = "";
     }
 }
 
+
+/* =========================
+   AVVIO APP
+========================= */
 const db = new DatabasePrenotazioni();
 
 function prenota() {
