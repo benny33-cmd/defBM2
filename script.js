@@ -1,6 +1,5 @@
-/* ========================
-   MESSAGGI
-========================= */
+/* 
+   messaggio post prenotazione */
 function mostraMessaggio(testo, tipo = "info") {
     const box = document.getElementById("messaggio");
     if (!box) return;
@@ -17,9 +16,7 @@ function mostraMessaggio(testo, tipo = "info") {
 }
 
 
-/* =========================
-   SLIDER
-========================= */
+/* foto che scorrono*/
 function cambiaSlide(btn, direzione) {
     const slider = btn.parentElement;
     const slides = slider.querySelectorAll(".slide");
@@ -35,9 +32,7 @@ function cambiaSlide(btn, direzione) {
 }
 
 
-/* =========================
-   PRENOTAZIONE (SENZA LISTA)
-========================= */
+/* prenotazioni */
 class DatabasePrenotazioni {
     constructor() {
         this.url = "https://script.google.com/macros/s/AKfycbzg8D3S8haAcitL7GPfQvPUrp9QhnJvEys8_8MTCJaKfqA-_vfxXpfNXXxR4QEeIxLQ/exec";
@@ -54,7 +49,7 @@ class DatabasePrenotazioni {
             return;
         }
 
-        // formatta data correttamente
+        
         const dataFormattata = new Date(data).toISOString().split("T")[0];
 
         mostraMessaggio("⏳ Invio prenotazione...", "info");
@@ -97,9 +92,7 @@ class DatabasePrenotazioni {
 }
 
 
-/* =========================
-   AVVIO
-========================= */
+
 const db = new DatabasePrenotazioni();
 
 function prenota() {
