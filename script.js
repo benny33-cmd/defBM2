@@ -35,7 +35,7 @@ function cambiaSlide(btn, direzione) {
 /* prenotazioni */
 class DatabasePrenotazioni {
     constructor() {
-        this.url = "https://script.google.com/macros/s/AKfycbya7s9rmozAYMLc33QsbQy583t6jTIuEKO4tmUI07OKkfIMv4oPjtAnugRkPhhS4EEi/exec";
+        this.url = "https://script.google.com/macros/s/AKfycbxkxuVbBWHQDDl_9k-Sw70ChqyxQnjRCc46vq00E1UdxIDrXpHMO_wvStWX2Ac2H94/exec";
     }
 
     prenota() {
